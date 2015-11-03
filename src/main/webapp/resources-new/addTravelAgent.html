@@ -659,8 +659,8 @@
         self.DateRange=ko.computed(function() {
 
             var dd=self.range().split("-");
-            self.startDate=ko.observable(dd[0]);
-            self.endDate=ko.observable( dd[1]);
+            self.startDate=ko.observable(new Date(dd[0]).getTime());
+            self.endDate=ko.observable( new Date(dd[1]).getTime());
         }, this);
 
 
@@ -725,14 +725,17 @@
 
         self.save=function(){
             var travelAgentObject = ko.toJS(NewTravelAgentModel);
-            var ratesObject = ko.toJS(NewTravelAgentModel.rates);
+            var ratesArr = ko.toJS(NewTravelAgentModel.rates);
 
             delete travelAgentObject.optionValues;//remove option values from View Model
+            for(var i=0;i< ratesArr.length;i++){
+               delete ratesArr[i].range;// remove range field, No range field in DB
 
+
+            }
             travelAgentObject = ko.toJSON(travelAgentObject);
-            ratesObject = ko.toJSON(ratesObject);
+            ratesArr = ko.toJSON(ratesArr);
 
-            alert(ratesObject);
             uploadProfilePicture();// Travel Agent logo upload
 
             $.ajax({
@@ -741,9 +744,11 @@
                 url: '/redberry/services/Rates/addrates',
                 contentType: 'application/json',
                 dataType: 'JSON',
-                data: ratesObject,
+                data: ratesArr,
+                success: function(data){
+                    alert(data);
+                }
             });
-
 
 
 
